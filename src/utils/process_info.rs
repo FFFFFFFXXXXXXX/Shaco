@@ -1,5 +1,5 @@
 use base64::{engine::general_purpose, Engine};
-use sysinfo::{ProcessExt, System, SystemExt};
+use sysinfo::System;
 
 use crate::error::ProcessInfoError;
 
