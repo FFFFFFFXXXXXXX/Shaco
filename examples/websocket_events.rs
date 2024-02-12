@@ -7,7 +7,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut client = ws::LcuWebsocketClient::connect().await?;
     client
         .subscribe(LcuSubscriptionType::JsonApiEvent(
-            "/lol-gameflow/v1/gameflow-phase".to_string(),
+            "/lol-gameflow/v1/gameflow-metadata/player-status".to_string(),
         ))
         .await
         .unwrap();

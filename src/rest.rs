@@ -1,6 +1,9 @@
+use reqwest::{
+    header::{HeaderMap, HeaderValue},
+    Certificate,
+};
+use riot_local_auth::Credentials;
 use serde::Serialize;
-
-use crate::utils::{process_info, request::build_reqwest_client};
 
 /// A client for the League-Client(LCU) REST API
 pub struct RESTClient {
@@ -8,17 +11,33 @@ pub struct RESTClient {
     reqwest_client: reqwest::Client,
 }
 
-type Error = Box<dyn std::error::Error>;
-
 impl RESTClient {
+    pub fn new() -> riot_local_auth::Result<Self> {
+        Ok(Self::new_internal(
+            &riot_local_auth::lcu::try_get_credentials()?,
+        ))
+    }
+
     /// Create a new instance of the LCU REST wrapper
-    pub fn new() -> Result<Self, Error> {
-        let (auth_token, port) = process_info::get_auth_info()?;
-        let reqwest_client = build_reqwest_client(Some(auth_token));
-        Ok(Self {
-            port,
+    fn new_internal(credentials: &Credentials) -> Self {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            "Authorization",
+            HeaderValue::from_str(&credentials.basic_auth()).unwrap(),
+        );
+
+        let reqwest_client = reqwest::ClientBuilder::new()
+            .add_root_certificate(
+                Certificate::from_pem(include_bytes!("../riotgames.pem")).unwrap(),
+            )
+            .default_headers(headers)
+            .build()
+            .unwrap();
+
+        Self {
+            port: credentials.port.to_string(),
             reqwest_client,
-        })
+        }
     }
 
     /// Make a get request to the specified endpoint
@@ -94,5 +113,11 @@ impl RESTClient {
             .json()
             .await
             .or_else(|_| Ok(serde_json::Value::Null))
+    }
+}
+
+impl From<&Credentials> for RESTClient {
+    fn from(credentials: &Credentials) -> Self {
+        Self::new_internal(credentials)
     }
 }
