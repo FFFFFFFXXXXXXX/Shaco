@@ -128,11 +128,16 @@ impl IngameClient {
         &self,
         event_id: Option<u32>,
     ) -> Result<Vec<GameEvent>, IngameClientError> {
+        use crate::model::ingame::treat_error_as_none;
+
         #[derive(serde::Deserialize)]
         #[serde(rename_all = "PascalCase")]
         struct IngameEvents {
-            pub events: Vec<GameEvent>,
+            pub events: Vec<GameEventTmp>,
         }
+
+        #[derive(serde::Deserialize)]
+        struct GameEventTmp(#[serde(deserialize_with = "treat_error_as_none")] Option<GameEvent>);
 
         self.0
             .get(format!(
@@ -147,7 +152,12 @@ impl IngameClient {
             .json::<IngameEvents>()
             .await
             .map_err(IngameClientError::from)
-            .map(|ie| ie.events)
+            .map(|ie| {
+                ie.events
+                    .into_iter()
+                    .filter_map(|event| event.0)
+                    .collect::<Vec<_>>()
+            })
     }
 
     /// Get the active games stats
