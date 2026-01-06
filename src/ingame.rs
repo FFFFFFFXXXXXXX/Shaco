@@ -1,7 +1,7 @@
 use std::{task::Poll, time::Duration};
 
 use futures_util::Stream;
-use reqwest::{Certificate, Response};
+use reqwest::Response;
 use tokio::{
     sync::mpsc::{unbounded_channel, UnboundedReceiver},
     sync::oneshot,
@@ -28,9 +28,7 @@ impl IngameClient {
     pub fn new() -> Self {
         Self(
             reqwest::ClientBuilder::new()
-                .add_root_certificate(
-                    Certificate::from_pem(include_bytes!("../riotgames.pem")).unwrap(),
-                )
+                .danger_accept_invalid_certs(true)
                 .timeout(Duration::from_millis(200))
                 .build()
                 .unwrap(),
