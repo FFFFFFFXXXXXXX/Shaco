@@ -1,6 +1,6 @@
 use reqwest::{
     header::{HeaderMap, HeaderValue},
-    Certificate,
+    tls::Certificate,
 };
 use riot_local_auth::Credentials;
 use serde::{de::DeserializeOwned, Serialize};
