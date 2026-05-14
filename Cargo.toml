@@ -18,13 +18,12 @@ tokio-tungstenite = { version = "0.29.0", features = ["__rustls-tls"] }
 # async http
 reqwest = { version = "0.13.3", default-features = false, features = [
     "json",
-    "rustls-no-provider",
+    "rustls",
 ] }
 # riot auth
 riot_local_auth = { git = "https://github.com/FFFFFFFXXXXXXX/riot_local_auth" }
 rustls = { version = "0.23.40", default-features = false, features = [
-    "ring",
-    "logging",
+    "aws-lc-rs",
     "std",
     "tls12",
 ] }

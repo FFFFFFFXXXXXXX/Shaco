@@ -5,7 +5,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(
         "{:#?}",
         client
-            .get("/lol-gameflow/v1/gameflow-metadata/player-status")
+            .get::<serde_json::Value>("/lol-gameflow/v1/gameflow-metadata/player-status")
             .await?
     );
 
